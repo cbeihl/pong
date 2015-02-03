@@ -40,6 +40,8 @@
             this.Name = "MainForm";
             this.Text = "Pong";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintDrawingPanel);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.handleKeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.handleKeyUp);
             this.ResumeLayout(false);
 
         }

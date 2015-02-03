@@ -63,11 +63,7 @@ namespace Pong
                 RadiusY = this.radius
             };
 
-            renderTarget.BeginDraw();
-            renderTarget.Transform = Matrix3x2.Identity;
-            renderTarget.Clear(new Color4(0.0f, 0.0f, 0.0f));
             renderTarget.FillEllipse(brush, ellipse);
-            renderTarget.EndDraw();
         }
 
     }

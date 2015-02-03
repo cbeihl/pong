@@ -25,6 +25,9 @@ namespace Pong
         private RenderTarget renderTarget;
         private bool firstPaint = true;
 
+        private Paddle leftPaddle, rightPaddle;
+        private Ball ball;
+
 
         public MainForm()
         {
@@ -51,7 +54,12 @@ namespace Pong
 
         private void InitializeGameObjects()
         {
-            gameObjects.Add(new Ball(new PointF(0, 0), new PointF(400, 200)));
+            leftPaddle = new Paddle(new PointF(10, 10));
+            rightPaddle = new Paddle(new PointF(400, 10));
+            ball = new Ball(new PointF(0, 0), new PointF(400, 200));
+            gameObjects.Add(leftPaddle);
+            gameObjects.Add(rightPaddle);
+            gameObjects.Add(ball);
         }
 
         private void ApplicationIdle(object sender, EventArgs e)
@@ -69,40 +77,81 @@ namespace Pong
                     foreach (IGameObject gameObj in gameObjects)
                     {
                         gameObj.Update(deltaTime);
-                        checkCollisions(gameObj);
                     }
+
+                    moveAIPaddle();
+                    checkBallCollisions();
 
                     if (!firstPaint)
                     {
+                        renderTarget.BeginDraw();
+                        renderTarget.Transform = Matrix3x2.Identity;
+                        renderTarget.Clear(new Color4(0.0f, 0.0f, 0.0f));
                         foreach (IGameObject gameObj in gameObjects)
                         {
                             gameObj.Render(factory, renderTarget);
                         }
+                        renderTarget.EndDraw();
                     }
                     Debug.WriteLine("deltaTime = " + deltaTime);
                 }
             }
         }
 
-        private void checkCollisions(IGameObject gameObj)
+        private void checkBallCollisions()
         {
             SizeF windowSize = renderTarget.Size;
             float windowWidth = windowSize.Width;
             float windowHeight = windowSize.Height;
-            PointF objPos = gameObj.GetPosition();
-            PointF objVel = gameObj.GetVelocity();
-            RectangleF objBounds = gameObj.GetBoundingBox();
+            PointF ballPos = ball.GetPosition();
+            PointF ballVel = ball.GetVelocity();
+            RectangleF ballBounds = ball.GetBoundingBox();
 
             // check collision with left and right screen bounds
-            if ((objBounds.Left < 0 && objVel.X < 0) || (objBounds.Right > windowWidth && objVel.X > 0))
+            if ((ballBounds.Left < 0 && ballVel.X < 0) || (ballBounds.Right > windowWidth && ballVel.X > 0))
             {
-                gameObj.SetVelocity(new PointF(objVel.X * -1, objVel.Y));
+                ball.SetVelocity(new PointF(ballVel.X * -1, ballVel.Y));
             }
 
             // check collision with top and bottom screen bounds
-            if ((objBounds.Top < 0 && objVel.Y < 0) || (objBounds.Bottom > windowHeight && objVel.Y > 0))
+            if ((ballBounds.Top < 0 && ballVel.Y < 0) || (ballBounds.Bottom > windowHeight && ballVel.Y > 0))
             {
-                gameObj.SetVelocity(new PointF(objVel.X, objVel.Y * -1));
+                ball.SetVelocity(new PointF(ballVel.X, ballVel.Y * -1));
+            }
+
+
+            RectangleF leftPaddleBounds = leftPaddle.GetBoundingBox();
+            RectangleF rightPaddleBounds = rightPaddle.GetBoundingBox();
+
+            if (ballBounds.IntersectsWith(leftPaddleBounds) || ballBounds.IntersectsWith(rightPaddleBounds))
+            {
+                ball.SetVelocity(new PointF(ballVel.X * -1, ballVel.Y));
+            }
+        }
+
+        private void moveAIPaddle()
+        {
+            rightPaddle.SetPosition(new PointF(renderTarget.Size.Width - 20, ball.GetPosition().Y - 50));
+        }
+
+        private void handleKeyDown(object sender, KeyEventArgs e) 
+        {
+            if (e.KeyCode == Keys.Up)
+            {
+                leftPaddle.SetVelocity(new PointF(0, -200));
+            } 
+            else if (e.KeyCode == Keys.Down)
+            {
+                leftPaddle.SetVelocity(new PointF(0, 200));
+            }
+
+        }
+
+        private void handleKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+            {
+                leftPaddle.SetVelocity(new PointF(0, 0));
             }
         }
 
