@@ -11,53 +11,46 @@ namespace Pong
 {
     class Ball : IGameObject
     {
+        private readonly float radius = 5;
+
         // current position
-        private float positionX;
-        private float positionY;
+        private PointF position;
 
         // velocity in pixels/sec
-        private float velocityX;
-        private float velocityY;
+        private PointF velocity;
 
-        public Ball(float startPosX, float startPosY, float startVelX, float startVelY)
+        public Ball(PointF startPos, PointF startVel)
         {
-            this.positionX = startPosX;
-            this.positionY = startPosY;
-            this.velocityX = startVelX;
-            this.velocityY = startVelY;
+            this.position = startPos;
+            this.velocity = startVel;
         }
 
-        public float GetPositionX()
+        public PointF GetPosition()
         {
-            return positionX;
+            return position;
         }
 
-        public float GetPositionY()
+        public RectangleF GetBoundingBox()
         {
-            return positionY;
+            float diameter = radius * 2;
+            RectangleF rect = new RectangleF(new PointF(position.X - radius, position.Y - radius), new SizeF(diameter, diameter));
+            return rect;
         }
 
-        public float GetVelocityX()
+        public PointF GetVelocity()
         {
-            return velocityX;
+            return velocity;
         }
 
-        public float GetVelocityY()
+        public void SetVelocity(PointF newVel)
         {
-            return velocityY;
-        }
-
-
-        public void SetVelocity(float velX, float velY)
-        {
-            this.velocityX = velX;
-            this.velocityY = velY;
+            this.velocity = newVel;
         }
 
         public void Update(float deltaTime)
         {
-            this.positionX = (velocityX * deltaTime) + positionX;
-            this.positionY = (velocityY * deltaTime) + positionY;
+            position.X = (velocity.X * deltaTime) + position.X;
+            position.Y = (velocity.Y * deltaTime) + position.Y;
         }
 
         public void Render(Factory factory, RenderTarget renderTarget)
@@ -65,9 +58,9 @@ namespace Pong
             SolidColorBrush brush = new SolidColorBrush(renderTarget, new Color4(1.0f, 1.0f, 1.0f));
             Ellipse ellipse = new Ellipse
             {
-                Center = new PointF { X = positionX, Y = positionY },
-                RadiusX = 5,
-                RadiusY = 5
+                Center = new PointF { X = position.X, Y = position.Y },
+                RadiusX = this.radius,
+                RadiusY = this.radius
             };
 
             renderTarget.BeginDraw();
@@ -77,12 +70,6 @@ namespace Pong
             renderTarget.EndDraw();
         }
 
-        public void Render(System.Drawing.Graphics g2d)
-        {
-            // draw ball
-            System.Drawing.Brush whiteBrush = new SolidBrush(Color.White);
-            g2d.FillEllipse(whiteBrush, new Rectangle((int) Math.Round(positionX), (int) Math.Round(positionY), 10, 10));   
-        }
     }
 
 }

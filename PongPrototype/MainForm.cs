@@ -51,7 +51,7 @@ namespace Pong
 
         private void InitializeGameObjects()
         {
-            gameObjects.Add(new Ball(0, 0, 400, 200));
+            gameObjects.Add(new Ball(new PointF(0, 0), new PointF(400, 200)));
         }
 
         private void ApplicationIdle(object sender, EventArgs e)
@@ -86,23 +86,23 @@ namespace Pong
 
         private void checkCollisions(IGameObject gameObj)
         {
-            SizeF size = renderTarget.Size;
-            float width = size.Width;
-            float height = size.Height;
-            float gameObjPosX = gameObj.GetPositionX();
-            float gameObjPosY = gameObj.GetPositionY();
+            SizeF windowSize = renderTarget.Size;
+            float windowWidth = windowSize.Width;
+            float windowHeight = windowSize.Height;
+            PointF objPos = gameObj.GetPosition();
+            PointF objVel = gameObj.GetVelocity();
+            RectangleF objBounds = gameObj.GetBoundingBox();
 
-            // TODO : need to get this size from gameObj
-            int objBuffer = 10;
-
-            if (gameObjPosX > (width - objBuffer) || gameObjPosX < 0)
+            // check collision with left and right screen bounds
+            if ((objBounds.Left < 0 && objVel.X < 0) || (objBounds.Right > windowWidth && objVel.X > 0))
             {
-                gameObj.SetVelocity(gameObj.GetVelocityX() * -1, gameObj.GetVelocityY());
+                gameObj.SetVelocity(new PointF(objVel.X * -1, objVel.Y));
             }
 
-            if (gameObjPosY > (height - objBuffer) || gameObjPosY < 0)
+            // check collision with top and bottom screen bounds
+            if ((objBounds.Top < 0 && objVel.Y < 0) || (objBounds.Bottom > windowHeight && objVel.Y > 0))
             {
-                gameObj.SetVelocity(gameObj.GetVelocityX(), gameObj.GetVelocityY() * -1);
+                gameObj.SetVelocity(new PointF(objVel.X, objVel.Y * -1));
             }
         }
 

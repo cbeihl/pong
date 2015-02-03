@@ -9,12 +9,11 @@ namespace Pong
 {
     interface IGameObject
     {
+        PointF GetPosition();
+        RectangleF GetBoundingBox();
+        PointF GetVelocity();
+        void SetVelocity(PointF newVel);
         void Update(float deltaTime);
         void Render(Factory factory, RenderTarget renderTarget);
-        float GetPositionX();
-        float GetPositionY();
-        float GetVelocityX();
-        float GetVelocityY();
-        void SetVelocity(float x, float y);
     }
 }
