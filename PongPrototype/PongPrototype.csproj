@@ -91,6 +91,7 @@
     <Compile Include="Paddle.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SoundManager.cs" />
     <Compile Include="TitleScreen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -125,6 +126,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="hustlepong.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tennis_ball_bounce_on_racket_001.wav" />
+    <Content Include="tennis_ball_hit_by_racket.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tennis_ball_single_bounce_floor_001.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

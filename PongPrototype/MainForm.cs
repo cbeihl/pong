@@ -11,10 +11,6 @@ using System.Diagnostics;
 using System.Collections;
 using SlimDX.Direct2D;
 using SlimDX;
-using SlimDX.XAudio2; // new
-using SlimDX.DirectSound; // new
-using SlimDX.Multimedia; // new
-using SlimDX.Windows; // new
 using System.Threading;
 
 namespace Pong
@@ -32,11 +28,8 @@ namespace Pong
 
         private Paddle leftPaddle, rightPaddle;
         private Ball ball;
-                     
-        bool m_UseDirectSound = true; // new
-        DirectSound m_DirectSound; // new
-        PrimarySoundBuffer m_DSoundPrimaryBuffer; // new
-        SecondarySoundBuffer m_DSoundBuffer; // new
+
+        private SoundManager soundMgr;
 
 
         private void MainForm_Load(object sender, EventArgs e) // new splash/titlescreen
@@ -54,8 +47,9 @@ namespace Pong
             gameTimer.Start();
             InitializeGameObjects();
             Application.Idle += ApplicationIdle;
-            if (m_UseDirectSound) // new
-            InitDirectSound();
+
+            soundMgr = new SoundManager(this.Handle);
+            soundMgr.PlayMusicLoop();
         }
 
         private void InitializeDirect2D()
@@ -112,7 +106,7 @@ namespace Pong
                         }
                         renderTarget.EndDraw();
                     }
-                    Debug.WriteLine("deltaTime = " + deltaTime);
+                    // Debug.WriteLine("deltaTime = " + deltaTime);
                 }
             }
         }
@@ -129,12 +123,14 @@ namespace Pong
             // check collision with left and right screen bounds
             if ((ballBounds.Left < 0 && ballVel.X < 0) || (ballBounds.Right > windowWidth && ballVel.X > 0))
             {
+                // TODO : this is going to be handled as a score
                 ball.SetVelocity(new PointF(ballVel.X * -1, ballVel.Y));
             }
 
             // check collision with top and bottom screen bounds
             if ((ballBounds.Top < 0 && ballVel.Y < 0) || (ballBounds.Bottom > windowHeight && ballVel.Y > 0))
             {
+                soundMgr.PlayWallHit();
                 ball.SetVelocity(new PointF(ballVel.X, ballVel.Y * -1));
             }
 
@@ -144,6 +140,7 @@ namespace Pong
 
             if (ballBounds.IntersectsWith(leftPaddleBounds) || ballBounds.IntersectsWith(rightPaddleBounds))
             {
+                soundMgr.PlayPaddleHit();
                 ball.SetVelocity(new PointF(ballVel.X * -1, ballVel.Y));
             }
         }
@@ -264,52 +261,6 @@ namespace Pong
             renderTarget.FillEllipse(brush, ellipse);
             renderTarget.EndDraw();
         }
-
-        private void InitDirectSound()
-        {
-            // create DirectSound object.
-            m_DirectSound = new DirectSound ();
-
-            // set cooperative level.
-            m_DirectSound.SetCooperativeLevel (this.Handle, SlimDX.DirectSound.CooperativeLevel.Priority);
-            
-            // create the primary sound buffer.
-            SoundBufferDescription desc = new SoundBufferDescription ();
-            desc.Flags = SlimDX.DirectSound.BufferFlags.PrimaryBuffer;
-            m_DSoundPrimaryBuffer = new PrimarySoundBuffer (m_DirectSound, desc);
-
-            // create secondary sound buffer.
-            using (WaveStream wavFile = new WaveStream(Application.StartupPath + "\\" + "hustlepong.wav"))
-            {
-                SoundBufferDescription DSoundBufferDesc;
-                DSoundBufferDesc = new SoundBufferDescription();
-                DSoundBufferDesc.SizeInBytes = (int) wavFile.Length;
-                DSoundBufferDesc.Flags = SlimDX.DirectSound.BufferFlags.ControlVolume;
-                DSoundBufferDesc.Format = wavFile.Format;
-
-                m_DSoundBuffer = new SecondarySoundBuffer (m_DirectSound, DSoundBufferDesc);
-
-                // now load the sound.
-                byte [] wavData = new byte[DSoundBufferDesc.SizeInBytes];
-                wavFile.Read(wavData, 0, (int)wavFile.Length);
-                m_DSoundBuffer.Write(wavData, 0, LockFlags.None);
-
-                // play our music and have it loop continuously.
-                m_DSoundBuffer.Play(0, SlimDX.DirectSound.PlayFlags.Looping); 
-            }
-
-               
-        }
-
-       
-        
-
-
-            
-        
-
-            
-
 
 
     }
