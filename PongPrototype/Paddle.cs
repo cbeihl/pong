@@ -49,7 +49,7 @@ namespace Pong
             PointF newLoc = new PointF(rect.Location.X, (velocity.Y * deltaTime) + rect.Location.Y);
             rect = new RectangleF(newLoc, rect.Size);
         }
-        public void Render(Factory factory, RenderTarget renderTarget)
+        public void Render(Factory factory, SlimDX.DirectWrite.Factory dwFactory, RenderTarget renderTarget)
         {
             SolidColorBrush brush = new SolidColorBrush(renderTarget, new Color4(1.0f, 1.0f, 1.0f));
             renderTarget.FillRectangle(brush, rect);

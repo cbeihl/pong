@@ -9,11 +9,7 @@ namespace Pong
 {
     interface IGameObject
     {
-        PointF GetPosition();
-        RectangleF GetBoundingBox();
-        PointF GetVelocity();
-        void SetVelocity(PointF newVel);
         void Update(float deltaTime);
-        void Render(Factory factory, RenderTarget renderTarget);
+        void Render(Factory factory, SlimDX.DirectWrite.Factory dwFactory, RenderTarget renderTarget);
     }
 }

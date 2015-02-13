@@ -12,6 +12,7 @@ using System.Collections;
 using SlimDX.Direct2D;
 using SlimDX;
 using System.Threading;
+using System.Drawing.Text;
 
 namespace Pong
 {
@@ -23,11 +24,13 @@ namespace Pong
         private double lastGameTime = 0.0;
 
         private Factory factory;
+        private SlimDX.DirectWrite.Factory dwFactory;
         private RenderTarget renderTarget;
         private bool firstPaint = true;
 
         private Paddle leftPaddle, rightPaddle;
         private Ball ball;
+        private Score leftScore, rightScore;
 
         private SoundManager soundMgr;
 
@@ -35,7 +38,12 @@ namespace Pong
         private void MainForm_Load(object sender, EventArgs e) // new splash/titlescreen
         {
             TitleScreen Splash = new TitleScreen();
-            Splash.Show();         
+            Splash.Show();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // TODO : dispose of all COM objects
         }
 
 
@@ -58,6 +66,9 @@ namespace Pong
             Debug.WriteLine("Width " + drawingPanelSize.Width + ", Height " + drawingPanelSize.Height + ", HWND " + this.Handle);
 
             factory = new Factory();
+            dwFactory = new SlimDX.DirectWrite.Factory();
+            SlimDX.DirectWrite.FontCollection installedFonts = dwFactory.GetSystemFontCollection(false);
+            
             renderTarget = new WindowRenderTarget(factory, new WindowRenderTargetProperties
             {
                 Handle = this.Handle,
@@ -65,14 +76,19 @@ namespace Pong
             });
         }
 
+
         private void InitializeGameObjects()
         {
             leftPaddle = new Paddle(new PointF(10, 10));
             rightPaddle = new Paddle(new PointF(400, 10));
             ball = new Ball(new PointF(0, 0), new PointF(400, 200));
+            leftScore = new Score(new PointF(-80, 20));
+            rightScore = new Score(new PointF(60, 20));
             gameObjects.Add(leftPaddle);
             gameObjects.Add(rightPaddle);
             gameObjects.Add(ball);
+            gameObjects.Add(leftScore);
+            gameObjects.Add(rightScore);
         }
 
         private void ApplicationIdle(object sender, EventArgs e)
@@ -102,7 +118,7 @@ namespace Pong
                         renderTarget.Clear(new Color4(0.0f, 0.0f, 0.0f));
                         foreach (IGameObject gameObj in gameObjects)
                         {
-                            gameObj.Render(factory, renderTarget);
+                            gameObj.Render(factory, dwFactory, renderTarget);
                         }
                         renderTarget.EndDraw();
                     }
@@ -121,10 +137,15 @@ namespace Pong
             RectangleF ballBounds = ball.GetBoundingBox();
 
             // check collision with left and right screen bounds
-            if ((ballBounds.Left < 0 && ballVel.X < 0) || (ballBounds.Right > windowWidth && ballVel.X > 0))
+            if (ballBounds.Right < 0 && ballVel.X < 0)
             {
-                // TODO : this is going to be handled as a score
-                ball.SetVelocity(new PointF(ballVel.X * -1, ballVel.Y));
+                rightScore.IncScore();
+                ball.SetPosition(new PointF(windowHeight / 2, windowWidth / 2));
+            } 
+            else if (ballBounds.Left > windowWidth && ballVel.X > 0)
+            {
+                leftScore.IncScore();
+                ball.SetPosition(new PointF(windowHeight / 2, windowWidth / 2));
             }
 
             // check collision with top and bottom screen bounds
@@ -138,7 +159,7 @@ namespace Pong
             RectangleF leftPaddleBounds = leftPaddle.GetBoundingBox();
             RectangleF rightPaddleBounds = rightPaddle.GetBoundingBox();
 
-            if (ballBounds.IntersectsWith(leftPaddleBounds) || ballBounds.IntersectsWith(rightPaddleBounds))
+            if ((ballBounds.IntersectsWith(leftPaddleBounds) && ball.GetVelocity().X < 0) || (ballBounds.IntersectsWith(rightPaddleBounds) && ball.GetVelocity().X > 0))
             {
                 soundMgr.PlayPaddleHit();
                 ball.SetVelocity(new PointF(ballVel.X * -1, ballVel.Y));
@@ -197,33 +218,6 @@ namespace Pong
                 InitializeDirect2D();
                 firstPaint = false;
             }
-            
-            //Graphics g2d = e.Graphics;
-            // bufferedGraphics.Render(g2d);
-            // g2d.Clear(Color.Black);
-
-            /*
-            Graphics g2d = e.Graphics;
-            foreach (IGameObject gameObj in gameObjects)
-            {
-                gameObj.Render(g2d);
-            }
-            */
-
-
-            
-            /*
-            Brush whiteBrush = new SolidBrush(Color.White);
-
-            // draw left paddle
-            g2d.FillRectangle(whiteBrush, new Rectangle(5, 5, 10, 100));
-
-            // draw right paddle
-            g2d.FillRectangle(whiteBrush, new Rectangle(400, 280, 10, 100));
-
-            // draw ball
-            g2d.FillEllipse(whiteBrush, new Rectangle(200, 140, 10, 10));
-            */
         }
 
         private void RenderDirect2D()
@@ -257,7 +251,6 @@ namespace Pong
             renderTarget.BeginDraw();
             renderTarget.Transform = Matrix3x2.Identity;
             renderTarget.Clear(new Color4(0.0f, 0.0f, 0.0f));
-            // renderTarget.FillGeometry(triangle, brush);
             renderTarget.FillEllipse(brush, ellipse);
             renderTarget.EndDraw();
         }

@@ -30,6 +30,11 @@ namespace Pong
             return position;
         }
 
+        public void SetPosition(PointF pos)
+        {
+            this.position = pos;
+        }
+
         public RectangleF GetBoundingBox()
         {
             float diameter = radius * 2;
@@ -53,7 +58,7 @@ namespace Pong
             position.Y = (velocity.Y * deltaTime) + position.Y;
         }
 
-        public void Render(Factory factory, RenderTarget renderTarget)
+        public void Render(Factory factory, SlimDX.DirectWrite.Factory dwFactory, RenderTarget renderTarget)
         {
             SolidColorBrush brush = new SolidColorBrush(renderTarget, new Color4(1.0f, 1.0f, 1.0f));
             Ellipse ellipse = new Ellipse
