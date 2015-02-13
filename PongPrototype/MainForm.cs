@@ -25,7 +25,7 @@ namespace Pong
 
         private Factory factory;
         private SlimDX.DirectWrite.Factory dwFactory;
-        private RenderTarget renderTarget;
+        private WindowRenderTarget renderTarget;
         private bool firstPaint = true;
 
         private Paddle leftPaddle, rightPaddle;
@@ -74,6 +74,7 @@ namespace Pong
                 Handle = this.Handle,
                 PixelSize = new Size(drawingPanelSize.Width, drawingPanelSize.Height)
             });
+
         }
 
 
@@ -190,6 +191,11 @@ namespace Pong
             {
                 leftPaddle.SetVelocity(new PointF(0, 0));
             }
+        }
+
+        private void handleResize(object sender, EventArgs e)
+        {
+            renderTarget.Resize(this.ClientSize);
         }
 
         private bool IsApplicationIdle()
