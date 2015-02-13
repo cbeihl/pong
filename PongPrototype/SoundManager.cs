@@ -36,7 +36,7 @@ namespace Pong
             primaryBuffer = new PrimarySoundBuffer(directSound, desc);
 
             // create secondary sound buffer
-            bgMusicBuffer = loadSoundFile("hustlepong.wav");
+            bgMusicBuffer = loadSoundFile("hustlepong_10.wav");
             paddleHitBuffer = loadSoundFile("tennis_ball_hit_by_racket.wav");
             wallHitBuffer = loadSoundFile("tennis_ball_single_bounce_floor_001.wav");
         }

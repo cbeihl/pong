@@ -133,6 +133,9 @@
     <Content Include="Resources\hustlepong.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\hustlepong_10.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\tennis_ball_bounce_on_racket_001.wav" />
     <Content Include="Resources\tennis_ball_hit_by_racket.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
