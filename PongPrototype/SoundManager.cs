@@ -60,7 +60,7 @@ namespace Pong
         private SecondarySoundBuffer loadSoundFile(String filename)
         {
             SecondarySoundBuffer sndBuffer = null;
-            using (WaveStream wavFile = new WaveStream(Application.StartupPath + "\\" + filename))
+            using (WaveStream wavFile = new WaveStream(Application.StartupPath + "\\Resources\\" + filename))
             {
                 SoundBufferDescription sndBufferDesc;
                 sndBufferDesc = new SoundBufferDescription();
